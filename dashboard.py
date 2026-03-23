@@ -86,6 +86,15 @@ def plot_heart_rate(df):
     st.plotly_chart(fig, use_container_width=True)
     st.divider()
 
+def plot_correlation_heatmap(df):
+    st.subheader("Correlation Heatmap")
+    numeric_df = df.select_dtypes(include=['number'])
+    corr = numeric_df.corr()
+    fig = px.imshow(corr, text_auto=True, color_continuous_scale='RdBu_r',
+                    zmin= -1, zmax = 1)
+    st. plotly_chart(fig,use_container_width=True) 
+
+
 df = load_data('heart_failure_data.csv')
 if df is None:
     st.error("Could not load data")
@@ -98,3 +107,4 @@ plot_age_distribuition(df_filtered)
 plot_heart_disease_by_sex(df_filtered)
 plot_cholesterol(df_filtered)
 plot_heart_rate(df_filtered)
+plot_correlation_heatmap(df_filtered)
