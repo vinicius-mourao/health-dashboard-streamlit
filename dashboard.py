@@ -1,13 +1,17 @@
+# Import necessary libraries and set streamlit webpage name
 import pandas as pd
 import streamlit as st
 import plotly.express as px
 
 st.set_page_config(page_title="Health Dashboard", layout="wide")
 
+# Display the title of the dashboard on the screen, along with its objective
 st.title("*Cardiac Disease Dashboard*", width="stretch", text_alignment="center")
 st.subheader("_An important *:red[analysis on heart failure diseases]* and its complications_ :heart:",text_alignment="center")
 
+
 def load_data(filepath):
+    """Function that loads the data with error validation"""
     try:
         return pd.read_csv(filepath)
     except Exception as e:
@@ -16,6 +20,7 @@ def load_data(filepath):
 
 
 def clean_data(df):
+    """Function responsible for cleaning the data"""
     df = df.drop_duplicates()
     df = df[df['Cholesterol']>0]
     df = df[df['RestingBP']>0]
@@ -23,6 +28,7 @@ def clean_data(df):
     return df
 
 def show_metrics(df): 
+    """Function responsible for showing important values on the screen"""
     col1, col2, col3 = st.columns(3)
     col4,col5,col6 = st.columns(3)
     col1.metric("Total Patients", f":busts_in_silhouette: {len(df)}", border = True)
@@ -42,6 +48,7 @@ def show_metrics(df):
 
 
 def sidebar_filters(df):
+    """Function responsible for creating a sidebar in order to change values"""
     st.sidebar.header("Filters")
     sex = st.sidebar.multiselect("Sex", options = df["Sex"].unique(), default = df['Sex'].unique())
     age_range = st.sidebar.slider("Age Range", int(df['Age'].min()), int(df['Age'].max()), (int(df['Age'].min()), int(df['Age'].max())))
@@ -55,6 +62,7 @@ def sidebar_filters(df):
     return df_filtered
 
 def plot_age_distribuition(df):
+    """Function to plot the age distribuition in the data"""
     st.subheader("_Age distribution_")
     fig = px.histogram(df, x = 'Age', 
                        nbins = 20,
@@ -68,6 +76,7 @@ def plot_age_distribuition(df):
     st.divider()
 
 def plot_heart_disease_by_sex(df):
+    """Function to plot the heart disease by sex for patients with and without heart disease"""
     st.subheader("_Heart Disease by Sex_")
     fig = px.histogram(df, x = 'Sex',
                        color = 'Heart Disease',
@@ -78,6 +87,7 @@ def plot_heart_disease_by_sex(df):
     st.divider()
 
 def plot_cholesterol(df):
+    """Function to plot the cholesterol data for patients with and without heart disease"""
     st.subheader("_Cholesterol by Heart Disease_")
     fig = px.box(df, x = 'Heart Disease', y ='Cholesterol',
                  color = 'Heart Disease',
@@ -87,6 +97,7 @@ def plot_cholesterol(df):
     st.divider()
 
 def plot_heart_rate(df):
+    """Function to plot the maximum heart rate by age for patients with and without heart disease"""
     st.subheader("_Max Heart Rate by Age_")
     fig = px.scatter(df, x='Age', y = 'MaxHR',
                      color = 'Heart Disease',
@@ -97,6 +108,7 @@ def plot_heart_rate(df):
     st.divider()
 
 def plot_correlation_heatmap(df):
+    """Function to plot a correlation heatmap to see if there is any correlation between variables"""
     st.subheader("_Correlation Heatmap_")
     numeric_df = df.select_dtypes(include=['number'])
     corr = numeric_df.corr()
@@ -106,6 +118,7 @@ def plot_correlation_heatmap(df):
     st.caption("MaxHR shows the strongest negative correlation with HeartDisease — higher maximum heart rates are associated with lower cardiac disease risk. Age shows a positive correlation, confirming that older patients are at higher risk.")
 
 def show_statistics(df):
+    """Function to show the basic statistics of the data"""
     st.subheader("Basic statistics")
     stats = df[['Age', 'RestingBP', 'Cholesterol', 'MaxHR']].describe().round(1)
     st.dataframe(stats, width='stretch')
